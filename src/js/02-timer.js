@@ -7,6 +7,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 let selectedTime = null;
 
+
 const refs = {
   inputDate: document.querySelector('#datetime-picker'),
   startBtn: document.querySelector('button[data-start]'),
@@ -25,6 +26,7 @@ const options = {
     if (selectedDates[0] < Date.now()) {
       Notify.failure('Please choose a date in the future');
       selectedDates[0] = new Date();
+      refs.startBtn.disabled = true;
     } else {
       refs.startBtn.disabled = false;
       selectedTime = selectedDates[0];
@@ -61,6 +63,7 @@ class Timer {
     this.timerID = null;
     this.isActive = false;
     refs.startBtn.disabled = true;
+  
   }
 
   startTimer() {
@@ -70,14 +73,18 @@ class Timer {
 
     this.isActive = true;
     this.timerID = setInterval(() => {
+    
       const currentTime = Date.now();
       const deltaTime = selectedTime - currentTime;
+        if (deltaTime <= 0) {
+        this.stopTimer();
+        return
+      }
       const componentsTimer = convertMs(deltaTime);
       this.updateComponentsTimer(componentsTimer);
-      if (deltaTime <= 0) {
-        this.stopTimer();
-      }
+     
     }, 1000);
+
   }
 
   updateComponentsTimer({ days, hours, minutes, seconds }) {
@@ -88,8 +95,9 @@ class Timer {
   }
 
   stopTimer() {
-    clearInterval(this.timerID);
+      clearInterval(this.timerID);
   }
+  
 }
 
 const timer = new Timer();
